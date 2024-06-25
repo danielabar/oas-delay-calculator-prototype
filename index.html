@@ -28,6 +28,8 @@
 <!--  Even if live to 95, it's only x% more, encourage apply with link to govt -->
 <!-- Handle edge case if unable to calculate break even age -->
 <!-- Edge case: 10 years in Canada and delay to age 66, breakeven calculates as 67 but lines look like they cross over at age 80 -->
+<!--  Maybe because the 2000 "good enough" needs to scale down depending on the magnitude of the difference -->
+<!--  Or need to calculate data series at month rather than year level for more accuracy -->
 <!-- Somehow communicate life expectancy wrt break even age -->
 <!-- Make this production quality with appropriate JS framework and tests (Svelte?) -->
 
@@ -56,7 +58,7 @@
           <p class="text-gray-600 text-sm mb-2">(between ages 18 and 65, must have at least 10 years to qualify)</p>
           <input type="number" id="years-in-canada" name="years_in_canada"
             class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            min="10" max="40" required>
+            min="10" max="40" required value="40">
         </div>
 
         <!-- Age taking OAS: 66, 67, 68, 69, 70 -->
@@ -125,6 +127,7 @@
       </div>
     </div>
 
+    <!-- About -->
     <div class="bg-white p-4 rounded shadow mb-6">
       <h2 class="text-2xl font-semibold mb-4">About This Project</h2>
       <p class="text-lg leading-relaxed mb-4">
@@ -133,6 +136,13 @@
         Rails engineer actively seeking new opportunities. It was created in collaboration with <span
           class="text-blue-500 font-semibold"><a href="https://openpolicyontario.com/" target="_blank"
             rel="noopener noreferrer">John Stapleton</a></span> of Open Policy Ontario.
+            The goal is to improve uptake of OAS among seniors,
+            particularly those in a low income bracket that could also be eligible for GIS (Guaranteed Income Supplement).
+      </p>
+      <p class="text-lg leading-relaxed mb-4">
+        <span class="font-semibold text-gray-700">Found a bug? <a
+            href="https://github.com/danielabar/oas-delay-calculator-prototype/issues" target="_blank"
+            class="underline">Report issues here</a>.</span>
       </p>
     </div>
 
