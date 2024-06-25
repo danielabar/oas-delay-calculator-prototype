@@ -18,7 +18,7 @@
 </head>
 
 <!-- TODOs: -->
-<!-- Update chart annotation to also show accumulated OAS at break even age -->
+<!-- Update chart annotation to also show accumulated OAS amount at break even age -->
 <!-- Add income from line ... of income tax and estimate GIS (simple only, not dynamic lookup) -->
 <!-- Fix awkward wording when have full 40 years: which is 1.000 of the full amount 713.34, starting at age 65 -->
 <!-- Possibly add explanation of percentage increase: This is because each month of delay increases pension amt by 0.6%... -->
@@ -27,6 +27,7 @@
 <!--  Explain about life expectancy -->
 <!--  Even if live to 95, it's only x% more, encourage apply with link to govt -->
 <!-- Handle edge case if unable to calculate break even age -->
+<!-- Edge case: 10 years in Canada and delay to age 66, breakeven calculates as 67 but lines look like they cross over at age 80 -->
 <!-- Somehow communicate life expectancy wrt break even age -->
 <!-- Make this production quality with appropriate JS framework and tests (Svelte?) -->
 
@@ -123,6 +124,18 @@
         <canvas id="myChart"></canvas>
       </div>
     </div>
+
+    <div class="bg-white p-4 rounded shadow mb-6">
+      <h2 class="text-2xl font-semibold mb-4">About This Project</h2>
+      <p class="text-lg leading-relaxed mb-4">
+        This project is a prototype developed by <span class="text-blue-500 font-semibold"><a
+            href="https://danielabaron.me/" target="_blank" rel="noopener noreferrer">Daniela Baron</a></span>, a Ruby on
+        Rails engineer actively seeking new opportunities. It was created in collaboration with <span
+          class="text-blue-500 font-semibold"><a href="https://openpolicyontario.com/" target="_blank"
+            rel="noopener noreferrer">John Stapleton</a></span> of Open Policy Ontario.
+      </p>
+    </div>
+
   </div>
 
   <script>
