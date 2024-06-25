@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prototype Should I Delay Old Age Security</title>
+
+  <!-- TailwindCSS CDN link -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+  <!-- Chart.js CDN links (core library and chart types that you'll use) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0"></script>
+
+  <!-- Chart.js Annotation plugin CDN link -->
+  <!-- https://www.chartjs.org/chartjs-plugin-annotation/latest/guide/ -->
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.1.0"></script>
+</head>
+
+<!-- TODOs: -->
+<!-- Update chart annotation to also show accumulated OAS at break even age -->
+<!-- Add income from line ... of income tax and estimate GIS (simple only, not dynamic lookup) -->
+<!-- Fix awkward wording when have full 40 years: which is 1.000 of the full amount 713.34, starting at age 65 -->
+<!-- Possibly add explanation of percentage increase: This is because each month of delay increases pension amt by 0.6%... -->
+<!-- Possibly add more wording after "would have to live until...", at which point you'll have accumulated {total} -->
+<!-- Add section after chart titled like "What should I do" -->
+<!--  Explain about life expectancy -->
+<!--  Even if live to 95, it's only x% more, encourage apply with link to govt -->
+<!-- Handle edge case if unable to calculate break even age -->
+<!-- Somehow communicate life expectancy wrt break even age -->
+<!-- Make this production quality with appropriate JS framework and tests (Svelte?) -->
+
+<!-- Nice to Have: -->
+<!-- Print feature so user could take their results with them to someone to get more help -->
+
+<body class="bg-gray-100 p-4">
+
+  <div class="max-w-screen-md mx-auto">
+    <h1 class="text-3xl font-semibold mb-4">Prototype Should I Delay Old Age Security?</h1>
+
+    <div class="bg-white p-4 rounded shadow mb-6">
+      <p class="text-lg leading-relaxed mb-4">
+        Eligible Canadians can apply for Old Age Security (OAS) starting at age 65. It's also possible to delay
+        applying up to age 70. Each month of delay will increase the benefit by 0.6%. But it may not be worth it,
+        especially for low income Canadians that are also eligible for GIS. Use this calculator to determine how
+        delaying could impact you.
+      </p>
+    </div>
+
+    <div class="bg-white p-4 rounded shadow mb-6">
+      <form id="oas-form">
+        <!-- Years Lived in Canada as an Adult -->
+        <div class="mb-4">
+          <label for="years-in-canada" class="block text-xl font-bold mb-2">Years Lived in Canada as an Adult</label>
+          <p class="text-gray-600 text-sm mb-2">(between ages 18 and 65, must have at least 10 years to qualify)</p>
+          <input type="number" id="years-in-canada" name="years_in_canada"
+            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            min="10" max="40" required>
+        </div>
+
+        <!-- Age taking OAS: 66, 67, 68, 69, 70 -->
+        <div class="mb-4">
+          <label for="age-taking-oas" class="block text-xl font-bold mb-2">I Want to Delay OAS to Age</label>
+          <select id="age-taking-oas" name="age_taking_oas"
+            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required>
+            <option value="66">66</option>
+            <option value="67">67</option>
+            <option value="68">68</option>
+            <option value="69">69</option>
+            <option value="70">70</option>
+          </select>
+        </div>
+
+
+        <!-- Submit Button -->
+        <div class="text-center">
+          <button type="submit"
+            class="w-full bg-blue-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+            Calculate
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div id="resultsPanel" hidden class="bg-white p-4 rounded shadow mb-6">
+      <div id="explanation">
+        <h2 class="text-2xl font-semibold mb-4">Your Results</h2>
+        <p class="mb-4 text-lg">
+          With your <span class="text-blue-500 font-semibold" id="resultsYearsInCanada"></span> years in Canada after
+          age 18, you're eligible for a monthly OAS benefit of
+          <span class="text-blue-500 font-semibold" id="resultsOasAt65"></span>, which is
+          <span class="text-blue-500 font-semibold" id="resultsCanadaMultiplier"></span>
+          of the full amount <span class="text-blue-500 font-semibold" id="resultsOasFullAmount"></span>,
+          starting at age <span class="text-blue-500 font-semibold" id="resultsDefaultAge"></span>.
+        </p>
+        <p class="mb-4 text-lg">
+          Delaying OAS to age <span class="text-blue-500 font-semibold" id="resultsDelayAge"></span> will increase
+          your payment by <span class="text-blue-500 font-semibold" id="resultsPercentageIncrease"></span>
+          to <span class="text-blue-500 font-semibold" id="resultsOasDelayed"></span>.
+        </p>
+        <p class="mb-4 text-lg">
+          While delaying does result in a larger monthly payment, it also means forgoing <span
+            class="text-blue-500 font-semibold" id="resultsYearsMissed"></span> years of payments
+          from age <span class="text-blue-500 font-semibold" id="resultsDefaultAge"></span> to your delayed starting
+          age of <span class="text-blue-500 font-semibold" id="resultsDelayAge"></span>.
+        </p>
+        <p class="mb-4 text-lg">
+          In order to break even (have the same amount of money) from delaying OAS to <span
+            class="text-blue-500 font-semibold" id="resultsDelayAge"></span>, you would have to
+          live until at least <span class="text-blue-500 font-semibold" id="resultsBreakevenAge"></span> years old. If
+          you live beyond this, then you will end up with more OAS
+          overall than if you had started at <span class="text-blue-500 font-semibold" id="resultsDefaultAge"></span>.
+        </p>
+
+        <p class="mb-4 text-lg">
+          The chart below shows how much total OAS you will have accumulated at each age whether you started at
+          <span class="text-blue-500 font-semibold" id="resultsDefaultAge"></span> or <span
+            class="text-blue-500 font-semibold" id="resultsDelayAge"></span>.
+          Where the two lines cross over is the break even point.
+        </p>
+
+        <canvas id="myChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // TODO: Organize all source data from a single json, fetch it, so there's only one file to change
+    // Ref: https://www.canada.ca/en/services/benefits/publicpensions/cpp/old-age-security/benefit-amount.html
+    // Ref: https://www150.statcan.gc.ca/n1/en/catalogue/84-537-X
+    const lifeExpectancy = 83
+    const fullOasAmount = 713.34
+    const requiredYearsInCanadaAsAdult = 40
+    const minAge = 65
+    const finalAge = 95 // we have to pick somewhere to end
+    const delayMultiplierPerMonth = 0.006 // 0.6% increase per month
+    const closeEnoughToBreakEven = 2000
+
+    // Keep a reference to the chart because we need to check if its already populated
+    // when attempting to re-render
+    let myChart = null
+
+    // FIRST we calculate how many 40ths of the full amount user is eligible for based on years in Canada.
+    // SECOND apply the months delay multiplier if applicable.
+    function determineOasAmount(yearsInCanada, ageTakingOas) {
+      yearsInCanadaFraction = yearsInCanada / requiredYearsInCanadaAsAdult
+      interimAmount = fullOasAmount * yearsInCanadaFraction
+      if (ageTakingOas == minAge) {
+        return interimAmount
+      } else {
+        const delayedMonths = (ageTakingOas - minAge) * 12
+        const multiplier = 1 + (delayedMonths * delayMultiplierPerMonth);
+        return interimAmount * multiplier;
+      }
+    }
+
+    const generateChartData = (yearsInCanada) => {
+      const monthlyAmount = determineOasAmount(yearsInCanada, minAge)
+
+      let dataPoints = [];
+      dataPoints.push({ x: minAge, y: 0 })
+
+      for (let age = minAge + 1; age <= finalAge; age++) {
+        let totalBenefit = (age - minAge) * 12 * monthlyAmount;
+        dataPoints.push({ x: age, y: totalBenefit });
+      }
+
+      return dataPoints;
+    };
+
+    const generateChartDataDelayed = (yearsInCanada, ageTakingOas) => {
+      const monthlyAmount = determineOasAmount(yearsInCanada, ageTakingOas)
+
+      let dataPoints = [];
+      dataPoints.push({ x: ageTakingOas, y: 0 })
+
+      for (let age = ageTakingOas + 1; age <= finalAge; age++) {
+        let totalBenefit = (age - ageTakingOas) * 12 * monthlyAmount;
+        dataPoints.push({ x: age, y: totalBenefit });
+      }
+
+      return dataPoints;
+    };
+
+    // Find the breakeven age (where the two lines intersect approximately)
+    function findBreakevenAge(dataDefault, dataDelayed, ageTakingOas) {
+      let breakevenAge = null;
+
+      for (let age = ageTakingOas; age <= finalAge; age++) {
+        const benefitAtDefaultAge = dataDefault.find(item => item.x === age)?.y || 0;
+        const benefitAtDelayedAge = dataDelayed.find(item => item.x === age)?.y || 0;
+
+        if (Math.abs(benefitAtDelayedAge - benefitAtDefaultAge) <= closeEnoughToBreakEven) {
+          breakevenAge = age;
+          break;
+        }
+      }
+
+      return breakevenAge;
+    };
+
+    function generateChart(dataDefault, dataDelayed, breakEvenAge, ageTakingOas) {
+      const ctx = document.getElementById('myChart').getContext('2d');
+
+      // If a chart instance already exists, destroy it
+      if (myChart) {
+        myChart.destroy();
+      }
+
+      const data = {
+        datasets: [
+          {
+            label: `Starting at Age ${minAge}`,
+            data: dataDefault,
+            borderColor: 'rgb(75, 192, 192)',
+            tension: 0.1,
+            fill: false
+          },
+          {
+            label: `Starting at Age ${ageTakingOas} (Delayed)`,
+            data: dataDelayed,
+            borderColor: 'rgb(255, 99, 132)',
+            tension: 0.1,
+            fill: false
+          }
+        ]
+      };
+
+      const options = {
+        responsive: true,
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: function (tooltipItem) {
+                return `Age ${tooltipItem.raw.x}: $${tooltipItem.raw.y.toLocaleString()}`;
+              }
+            }
+          },
+          annotation: {
+            annotations: [
+              {
+                type: 'line',
+                mode: 'vertical',
+                scaleID: 'x',
+                value: breakEvenAge,
+                borderColor: 'gray',
+                borderWidth: 2,
+                label: {
+                  content: `Breakeven Age: ${breakEvenAge}`,
+                  enabled: true,
+                  position: 'start'
+                }
+              }
+            ]
+          }
+        },
+        scales: {
+          x: {
+            type: 'linear',
+            position: 'bottom',
+            title: {
+              display: true,
+              text: 'Age'
+            },
+            ticks: {
+              stepSize: 5
+            }
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Total Benefits Received'
+            },
+            ticks: {
+              callback: function (value, index, values) {
+                return '$' + value.toLocaleString(); // Add thousands separators
+              }
+            }
+          }
+        }
+      };
+
+      myChart = new Chart(ctx, {
+        type: 'line',
+        data: data,
+        options: options
+      });
+    }
+
+    // Add form submit handler to intercept regular form submission
+    document.getElementById('oas-form').addEventListener('submit', calculate);
+
+    // In absence of declarative templates for this prototype,
+    // we have to imperatively update the DOM
+    function updateContent(selector, value) {
+      const elements = document.querySelectorAll(`#${selector}`)
+      elements.forEach(element => {
+        element.textContent = value
+      });
+    }
+    function updateResults(results) {
+      updateContent('resultsYearsInCanada', results.yearsInCanada);
+      updateContent('resultsOasAt65', `${results.oasAt65.toFixed(2)}`);
+      updateContent('resultsCanadaMultiplier', `${results.canadaMultiplier.toFixed(3)}`);
+      updateContent('resultsOasFullAmount', `${fullOasAmount.toFixed(2)}`);
+      updateContent('resultsDefaultAge', minAge);
+      updateContent('resultsDelayAge', results.delayAge);
+      updateContent('resultsPercentageIncrease', `${(results.percentageIncrease * 100).toFixed(1)}%`);
+      updateContent('resultsOasDelayed', `${results.oasDelayed.toFixed(2)}`);
+      updateContent('resultsYearsMissed', results.yearsMissed);
+      updateContent('resultsBreakevenAge', results.breakEvenAge);
+
+      document.getElementById('resultsPanel').removeAttribute('hidden');
+    }
+
+    // This runs when the form is submitted to perform all calculations and show results
+    function calculate(evt) {
+      evt.preventDefault();
+
+      const yearsInCanada = Number(document.getElementById('years-in-canada').value);
+      const ageTakingOas = Number(document.getElementById('age-taking-oas').value);
+
+      const dataDefault = generateChartData(yearsInCanada);
+      const dataDelayed = generateChartDataDelayed(yearsInCanada, ageTakingOas);
+      const breakEvenAge = findBreakevenAge(dataDefault, dataDelayed, ageTakingOas)
+
+      // Calculate the required values
+      const oasAt65 = determineOasAmount(yearsInCanada, minAge)
+      const oasDelayed = determineOasAmount(yearsInCanada, ageTakingOas)
+      const percentageIncrease = (oasDelayed - oasAt65) / oasAt65;
+      const yearsMissed = ageTakingOas - minAge;
+
+      // Construct results object
+      const results = {
+        yearsInCanada,
+        oasAt65,
+        canadaMultiplier: yearsInCanada / requiredYearsInCanadaAsAdult,
+        oasFullAmount: fullOasAmount,
+        defaultAge: minAge,
+        delayAge: ageTakingOas,
+        percentageIncrease,
+        oasDelayed,
+        yearsMissed,
+        breakEvenAge
+      };
+
+      // Update the UI with results
+      updateResults(results);
+      generateChart(dataDefault, dataDelayed, breakEvenAge, ageTakingOas)
+    }
+  </script>
+</body>
+
+</html>
