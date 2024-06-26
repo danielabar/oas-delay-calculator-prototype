@@ -32,6 +32,9 @@
 <!--  Or need to calculate data series at month rather than year level for more accuracy -->
 <!--  Or change break even calc to find age with smallest diff between lines -->
 <!-- Somehow communicate life expectancy wrt break even age -->
+<!-- As years in Canada is lower and if they have lots of GIS, breakeven age goes off the chart (eg: 20 years in Canada, max GIS, delay to 70) -->
+<!-- Name variables to be clear if they're monthly or yearly -->
+<!-- Single vs plural `year` vs `years` in explanation if only delaying by 1 year -->
 <!-- Make this production quality with appropriate JS framework and tests (Svelte?) -->
 <!-- If there was a build system, maybe could use: https://github.com/danielabar/gis-lookup -->
 
@@ -73,7 +76,7 @@
             <option value="67">67</option>
             <option value="68">68</option>
             <option value="69">69</option>
-            <option value="70">70</option>
+            <option value="70" selected>70</option>
           </select>
         </div>
 
@@ -99,7 +102,7 @@
               <span class="ml-2">15240 - 21623</span>
             </label>
             <label class="inline-flex items-center">
-              <input type="radio" name="income_range" value="15240-21624" class="form-radio text-blue-500">
+              <input type="radio" name="income_range" value="Over 21624" class="form-radio text-blue-500">
               <span class="ml-2">Over 21624 </span>
             </label>
           </div>
@@ -141,10 +144,18 @@
         <!-- This should only be shown if GIS eligible -->
         <div id="gisPanel" hidden>
           <p class="mb-4 text-lg">
-            Furthermore, your selected income range makes you eligible for an approximate monthly GIS benefit of
-            <span class="text-blue-500 font-semibold" id="resultsGisAmount"></span>.
+            <span class="bg-yellow-200 inline-block px-2 py-1 rounded-lg">
+              Furthermore, your selected income range makes you eligible for an approximate monthly GIS benefit of
+              <span class="text-blue-500 font-bold" id="resultsGisAmount"></span>
+              which you can only get by claiming OAS.
+            </span>
           </p>
         </div>
+
+        <p class="mb-4 text-lg">
+          Those <span class="text-blue-500 font-semibold" id="resultsYearsMissed"></span> years of missed payments
+          represent an income loss of <span class="text-blue-500 font-semibold" id="resultsOasDuringYearsMissed"></span>.
+        </p>
 
         <p class="mb-4 text-lg">
           In order to break even (have the same amount of money) from delaying OAS to <span
@@ -276,7 +287,10 @@
           break;
         }
       }
-
+      if (breakevenAge === null) {
+        console.error('Could not find breakeven age');
+        return "Beyond Human Lifetime"
+      }
       return breakevenAge;
     };
 
@@ -390,6 +404,8 @@
       updateContent('resultsOasDelayed', `${results.oasDelayed.toFixed(2)}`);
       updateContent('resultsYearsMissed', results.yearsMissed);
       updateContent('resultsBreakevenAge', results.breakEvenAge);
+      updateContent('resultsOasDuringYearsMissed', results.oasDuringYearsMissed.toLocaleString('en-CA', { style: 'currency', currency: 'CAD' }));
+
 
       document.getElementById('resultsPanel').removeAttribute('hidden');
 
@@ -439,6 +455,7 @@
       const oasDelayed = determineOasAmount(yearsInCanada, ageTakingOas)
       const percentageIncrease = (oasDelayed - oasAt65) / oasAt65;
       const yearsMissed = ageTakingOas - minAge;
+      const oasDuringYearsMissed = yearsMissed * 12 * (oasAt65 + gisAmount)
 
       // Construct results object
       const results = {
@@ -452,7 +469,8 @@
         oasDelayed,
         yearsMissed,
         breakEvenAge,
-        gisAmount
+        gisAmount,
+        oasDuringYearsMissed
       };
 
       // Update the UI with results
