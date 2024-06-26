@@ -18,8 +18,8 @@
 </head>
 
 <!-- TODOs: -->
+<!-- WIP: Add income from line ... of income tax and estimate GIS (simple only, not dynamic lookup) -->
 <!-- Update chart annotation to also show accumulated OAS amount at break even age -->
-<!-- Add income from line ... of income tax and estimate GIS (simple only, not dynamic lookup) -->
 <!-- Fix awkward wording when have full 40 years: which is 1.000 of the full amount 713.34, starting at age 65 -->
 <!-- Possibly add explanation of percentage increase: This is because each month of delay increases pension amt by 0.6%... -->
 <!-- Possibly add more wording after "would have to live until...", at which point you'll have accumulated {total} -->
@@ -30,8 +30,10 @@
 <!-- Edge case: 10 years in Canada and delay to age 66, breakeven calculates as 67 but lines look like they cross over at age 80 -->
 <!--  Maybe because the 2000 "good enough" needs to scale down depending on the magnitude of the difference -->
 <!--  Or need to calculate data series at month rather than year level for more accuracy -->
+<!--  Or change break even calc to find age with smallest diff between lines -->
 <!-- Somehow communicate life expectancy wrt break even age -->
 <!-- Make this production quality with appropriate JS framework and tests (Svelte?) -->
+<!-- If there was a build system, maybe could use: https://github.com/danielabar/gis-lookup -->
 
 <!-- Nice to Have: -->
 <!-- Print feature so user could take their results with them to someone to get more help -->
@@ -55,15 +57,15 @@
         <!-- Years Lived in Canada as an Adult -->
         <div class="mb-4">
           <label for="years-in-canada" class="block text-xl font-bold mb-2">Years Lived in Canada as an Adult</label>
-          <p class="text-gray-600 text-sm mb-2">(between ages 18 and 65, must have at least 10 years to qualify)</p>
+          <p class="text-gray-600 text-sm mb-2">(Between ages 18 and 65)</p>
           <input type="number" id="years-in-canada" name="years_in_canada"
             class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            min="10" max="40" required value="40">
+            min="1" max="40" required value="40">
         </div>
 
         <!-- Age taking OAS: 66, 67, 68, 69, 70 -->
         <div class="mb-4">
-          <label for="age-taking-oas" class="block text-xl font-bold mb-2">I Want to Delay OAS to Age</label>
+          <label for="age-taking-oas" class="block text-xl font-bold mb-2">Delay OAS to Age</label>
           <select id="age-taking-oas" name="age_taking_oas"
             class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             required>
@@ -75,6 +77,33 @@
           </select>
         </div>
 
+        <!-- Annual Income -->
+        <div class="mb-4">
+          <label for="annual-income" class="block text-xl font-bold mb-2">Select Your Annual Income Range</label>
+          <p class="text-gray-600 text-sm mb-2">(Line 23600 of your tax return, required for GIS eligibility)</p>
+          <div class="flex flex-col space-y-2">
+            <label class="inline-flex items-center">
+              <input type="radio" name="income_range" value="0-4943" class="form-radio text-blue-500" required>
+              <span class="ml-2">0 - 4943</span>
+            </label>
+            <label class="inline-flex items-center">
+              <input type="radio" name="income_range" value="4944-9215" class="form-radio text-blue-500">
+              <span class="ml-2">4944 - 9215</span>
+            </label>
+            <label class="inline-flex items-center">
+              <input type="radio" name="income_range" value="9216-15239" class="form-radio text-blue-500">
+              <span class="ml-2">9216 - 15239</span>
+            </label>
+            <label class="inline-flex items-center">
+              <input type="radio" name="income_range" value="15240-21623" class="form-radio text-blue-500">
+              <span class="ml-2">15240 - 21623</span>
+            </label>
+            <label class="inline-flex items-center">
+              <input type="radio" name="income_range" value="15240-21624" class="form-radio text-blue-500">
+              <span class="ml-2">Over 21624 </span>
+            </label>
+          </div>
+        </div>
 
         <!-- Submit Button -->
         <div class="text-center">
@@ -108,6 +137,15 @@
           from age <span class="text-blue-500 font-semibold" id="resultsDefaultAge"></span> to your delayed starting
           age of <span class="text-blue-500 font-semibold" id="resultsDelayAge"></span>.
         </p>
+
+        <!-- This should only be shown if GIS eligible -->
+        <div id="gisPanel" hidden>
+          <p class="mb-4 text-lg">
+            Furthermore, your selected income range makes you eligible for an approximate monthly GIS benefit of
+            <span class="text-blue-500 font-semibold" id="resultsGisAmount"></span>.
+          </p>
+        </div>
+
         <p class="mb-4 text-lg">
           In order to break even (have the same amount of money) from delaying OAS to <span
             class="text-blue-500 font-semibold" id="resultsDelayAge"></span>, you would have to
@@ -152,13 +190,32 @@
     // TODO: Organize all source data from a single json, fetch it, so there's only one file to change
     // Ref: https://www.canada.ca/en/services/benefits/publicpensions/cpp/old-age-security/benefit-amount.html
     // Ref: https://www150.statcan.gc.ca/n1/en/catalogue/84-537-X
+    // Ref: https://www.canada.ca/en/services/benefits/publicpensions/cpp/old-age-security/guaranteed-income-supplement/eligibility.html
+    // Ref: https://www.canada.ca/en/services/benefits/publicpensions/cpp/old-age-security/guaranteed-income-supplement/benefit-amount.html
     const lifeExpectancy = 83
     const fullOasAmount = 713.34
     const requiredYearsInCanadaAsAdult = 40
     const minAge = 65
-    const finalAge = 95 // we have to pick somewhere to end
     const delayMultiplierPerMonth = 0.006 // 0.6% increase per month
     const closeEnoughToBreakEven = 2000
+    const gisIncomeFloor = 21624
+    const gisAmount = 1065
+
+    // we have to pick somewhere to end, and in the case of GIS, it could be very high
+    const finalAge = 110
+
+    // Maintenance issue - govt updates 4 x year, how are we going to keep up with data changes?
+    // Ref: https://open.canada.ca/data/en/dataset/dfa4daf1-669e-4514-82cd-982f27707ed0 (Table 1, Single, Split into quartiles)
+    const gisDataRows = [
+      { annualIncomeFrom: 0, annualIncomeTo: 23.99, totalMonthlyGIS: 1065.47 },
+      { annualIncomeFrom: 4928, annualIncomeTo: 4943.99, totalMonthlyGIS: 799.47 },
+      { annualIncomeFrom: 4944, annualIncomeTo: 4967.99, totalMonthlyGIS: 798.47 },
+      { annualIncomeFrom: 9200, annualIncomeTo: 9215.99, totalMonthlyGIS: 532.47 },
+      { annualIncomeFrom: 9216, annualIncomeTo: 9239.99, totalMonthlyGIS: 531.47 },
+      { annualIncomeFrom: 15216, annualIncomeTo: 15239.99, totalMonthlyGIS: 266.43 },
+      { annualIncomeFrom: 15240, annualIncomeTo: 15263.99, totalMonthlyGIS: 265.43 },
+      { annualIncomeFrom: 21600, annualIncomeTo: 21623.99, totalMonthlyGIS: 0.43 }
+    ];
 
     // Keep a reference to the chart because we need to check if its already populated
     // when attempting to re-render
@@ -178,8 +235,8 @@
       }
     }
 
-    const generateChartData = (yearsInCanada) => {
-      const monthlyAmount = determineOasAmount(yearsInCanada, minAge)
+    const generateChartData = (yearsInCanada, gisAmount) => {
+      const monthlyAmount = determineOasAmount(yearsInCanada, minAge) + gisAmount
 
       let dataPoints = [];
       dataPoints.push({ x: minAge, y: 0 })
@@ -192,8 +249,8 @@
       return dataPoints;
     };
 
-    const generateChartDataDelayed = (yearsInCanada, ageTakingOas) => {
-      const monthlyAmount = determineOasAmount(yearsInCanada, ageTakingOas)
+    const generateChartDataDelayed = (yearsInCanada, ageTakingOas, gisAmount) => {
+      const monthlyAmount = determineOasAmount(yearsInCanada, ageTakingOas) + gisAmount
 
       let dataPoints = [];
       dataPoints.push({ x: ageTakingOas, y: 0 })
@@ -335,6 +392,32 @@
       updateContent('resultsBreakevenAge', results.breakEvenAge);
 
       document.getElementById('resultsPanel').removeAttribute('hidden');
+
+      if (results.gisAmount > 0) {
+        document.getElementById('gisPanel').removeAttribute('hidden');
+        updateContent('resultsGisAmount', `${results.gisAmount.toFixed(2)}`);
+      } else {
+        document.getElementById('gisPanel').setAttribute('hidden', true);
+      }
+    }
+
+    // Naively simple
+    function determineGisAmount(incomeRange) {
+      if (incomeRange.startsWith('Over')) {
+        return 0; // Not eligible for GIS
+      }
+
+      const [minIncome, maxIncome] = incomeRange.split('-').map(value => parseFloat(value.trim()));
+      const minRow = gisDataRows.find(row => minIncome >= row.annualIncomeFrom && minIncome <= row.annualIncomeTo);
+      const maxRow = gisDataRows.find(row => maxIncome >= row.annualIncomeFrom && maxIncome <= row.annualIncomeTo);
+
+      if (minRow && maxRow) {
+        const averageGIS = (minRow.totalMonthlyGIS + maxRow.totalMonthlyGIS) / 2
+        return averageGIS
+      } else {
+        console.error(`Could not find rows for income range ${incomeRange}`)
+        return 0
+      }
     }
 
     // This runs when the form is submitted to perform all calculations and show results
@@ -343,9 +426,12 @@
 
       const yearsInCanada = Number(document.getElementById('years-in-canada').value);
       const ageTakingOas = Number(document.getElementById('age-taking-oas').value);
+      const gisRangeElement = document.querySelector('input[name="income_range"]:checked');
+      const gisRange = gisRangeElement ? gisRangeElement.value : null;
 
-      const dataDefault = generateChartData(yearsInCanada);
-      const dataDelayed = generateChartDataDelayed(yearsInCanada, ageTakingOas);
+      const gisAmount = determineGisAmount(gisRange)
+      const dataDefault = generateChartData(yearsInCanada, gisAmount);
+      const dataDelayed = generateChartDataDelayed(yearsInCanada, ageTakingOas, gisAmount);
       const breakEvenAge = findBreakevenAge(dataDefault, dataDelayed, ageTakingOas)
 
       // Calculate the required values
@@ -365,7 +451,8 @@
         percentageIncrease,
         oasDelayed,
         yearsMissed,
-        breakEvenAge
+        breakEvenAge,
+        gisAmount
       };
 
       // Update the UI with results
