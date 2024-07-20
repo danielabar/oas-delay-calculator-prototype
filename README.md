@@ -65,7 +65,9 @@ The results show that Maria would need to live to at least age 84 to break even.
 
 ### Example 2: Priya
 
-Priya has 37 years of residency in Canada, having immigrated from India at age 28. She earns approximately $12,000 per year working part-time as a caregiver, making her eligible for GIS. Priya believes that delaying OAS for 3 years will both increase her residency to 40 years to receive the full pension amount and that it also increases the monthly payment by 0.6% for each month of delay. Let's see how Priya fares by delaying:
+Priya has 37 years of residency in Canada, having immigrated from India at age 28. She earns approximately $12,000 per year working part-time as a caregiver, making her eligible for GIS. Priya believes that delaying OAS for 3 years will both increase her residency to 40 years to receive the full pension amount and that it also increases the monthly payment by 0.6% for each month of delay. This is actually untrue, the delay will by default, only result in the percentage increase, but not a residency increase (more on this later).
+
+Let's see how Priya fares by delaying:
 
 ![38 years gis](doc-images/38-years-gis.png "38 years gis")
 
