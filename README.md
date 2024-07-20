@@ -6,7 +6,7 @@
   - [Overview](#overview)
   - [Why is this Needed?](#why-is-this-needed)
   - [Features](#features)
-  - [TODO Screenshots](#todo-screenshots)
+  - [Screenshots](#screenshots)
   - [Current Status](#current-status)
     - [Functional Improvements](#functional-improvements)
       - [Waiting Does Not Stack: Additional Details](#waiting-does-not-stack-additional-details)
@@ -47,7 +47,15 @@ A visual tool is needed to illustrate these nuances effectively and help low-inc
 - Visualization of the impact on GIS.
 - Basic styling and structure for user interaction.
 
-## TODO Screenshots
+## Screenshots
+
+**Example 1: 40 years residency, delay to 70, income too high for GIS**
+
+![40 years no gis](doc-images/40-years-no-gis.png "40 years no gis")
+
+**Example 2: 37 years residency, delay to 68, some GIS eligibility**
+
+![38 years gis](doc-images/38-years-gis.png "38 years gis")
 
 ## Current Status
 
