@@ -20,6 +20,8 @@
 
 # OAS Delay Calculator Prototype
 
+<img src="logo.png" alt="OAS Delay Calculator Logo" width="150">
+
 ## Overview
 
 The OAS Delay Calculator is a prototype tool designed to help Canadian seniors decide whether to delay their Old Age Security (OAS) benefits. This tool calculates the breakeven age by comparing the financial benefits of taking OAS at age 65 versus delaying it up to age 70. The breakeven age is the point at which the total amount of OAS received from delaying equals the total amount received if starting at age 65.
