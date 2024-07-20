@@ -4,10 +4,12 @@
 
 - [OAS Delay Calculator Prototype](#oas-delay-calculator-prototype)
   - [Overview](#overview)
+  - [Why is this Needed?](#why-is-this-needed)
   - [Features](#features)
   - [TODO Screenshots](#todo-screenshots)
   - [Current Status](#current-status)
     - [Functional Improvements](#functional-improvements)
+      - [Waiting Does Not Stack: Additional Details](#waiting-does-not-stack-additional-details)
     - [Data Sourcing](#data-sourcing)
     - [Technical Enhancements](#technical-enhancements)
     - [Future Considerations](#future-considerations)
@@ -28,6 +30,16 @@ The goal is to improve the uptake of OAS among seniors, particularly those in a 
 
 **Note:** This is a prototype and not a finalized product. It is intended to demonstrate the concept and provide initial functionality.
 
+## Why is this Needed?
+
+In the Toronto Metropolitan area, where 71% of seniors are immigrants, many people turning 65 are not applying for OAS due to:
+
+1. Attempting to attain more qualifying years for OAS.
+2. Understanding that waiting until age 70 increases their monthly payments.
+3. Mainstream advice from private planners advocating for delaying OAS. This advice is sound if the money is not required and there is no eligibility for GIS. However, for those eligible for significant GIS amounts, waiting might not be in their best interest.
+
+A visual tool is needed to illustrate these nuances effectively and help low-income seniors (and their advisors if applicable) in decision making wrt OAS and GIS.
+
 ## Features
 
 - Input forms for personal details such as income range and age.
@@ -45,8 +57,6 @@ The current version is a working prototype with the core functionality in place.
 
 In addition to the existing breakeven chart annotation, add an annotation for Statistics Canada life expectancy. Add a toggle so users can view the chart with or without this additional information. The easier way would be to use the Statistics Canada combined data for men and women. A little more work would be to also ask the user whether they are man/woman, and then show the relevant Statistics Canada life expectancy. If doing this, add explanation why we need to ask for this info.
 
-Add messaging that the benefits of waiting do not stack. That is, if someone has 38 years in Canada by the time they turn 65, they're entitled to 38/40th of the full pension amount. If they delay to age 67, by default, they will get the 0.6% bump for each month of delay, which is called the "actuarially adjusted amount". They will *NOT* get the extra 2/40th fraction from the two years delay. They could ask the government for the extra 2/40th, but in this case, they would get that 2/40th fraction *instead of* the actuarially adjusted amount, *not in addition to.* And the actuarially adjusted amount is always the greater of the n/40th fraction, so it always makes sense to take the government default option.
-
 Update styles to emphasize importance of initial years of missed payments.
 
 Update results panel to indicate how the initial years of missed payments was calculated (eg: num years * months * OAS entitlement at age 65).
@@ -57,6 +67,7 @@ Add disclaimer panel including:
 - This tool is only one piece of information of many moving parts in retirement and financial planning.
 - No one can predict their exact lifespan, which adds uncertainty.
 - Uncertainty in predicting future earnings and work years affects GIS calculations.
+- Not considering inflation, all calculations are in today's dollars.
 - The results are not financial advice and are subject to change. For a more accurate assessment of your estimated benefits amount, please visit https://www.canada.ca/en/employment-social-development/corporate/contact/oas.html
 
 Fix awkward wording when have full 40 years: which is 1.000 of the full amount 713.34, starting at age 65.
@@ -72,6 +83,18 @@ Add a section after results with some actionable advice?
 * Add a link to Apply for OAS Now, linking to the government site. Include a `?ref=...` parameter in the URL so the government could optionally measure impact of this tool.
 
 Ensure the tool is accessible to all users, including those with disabilities. Chart.js in particular needs some extra work: https://www.chartjs.org/docs/latest/general/accessibility.html
+
+#### Waiting Does Not Stack: Additional Details
+
+Add messaging that the benefits of waiting do not stack. For example:
+
+If a person has 37 years of residency as an adult by age 65 and applies at 65, they're eligible for partial pension of 37/40th (locked in).
+
+If this person waits until age 68 to apply, the options are:
+1. Full pension (40/40ths) because now they've accumulated 40 years residency; OR
+2. Default: Actuarially adjusted pension (37/40 rate x 21.6% increase….i.e., 0.6% increase for each of the 36 months they deferred)
+
+In theory, the person could ask for the non default option (full 40/40th pension), but that's sub-optimal because the actuarially increased amount is greater.
 
 ### Data Sourcing
 
