@@ -6,7 +6,9 @@
   - [Overview](#overview)
   - [Why is this Needed?](#why-is-this-needed)
   - [Features](#features)
-  - [Screenshots](#screenshots)
+  - [Hypothetical Case Studies](#hypothetical-case-studies)
+    - [Example 1: Maria](#example-1-maria)
+    - [Example 2: Priya](#example-2-priya)
   - [Current Status](#current-status)
     - [Functional Improvements](#functional-improvements)
       - [Waiting Does Not Stack: Additional Details](#waiting-does-not-stack-additional-details)
@@ -28,7 +30,7 @@ The OAS Delay Calculator is a prototype tool designed to help Canadian seniors d
 
 For many people, this breakeven age is close to the average Canadian life expectancy, making it less beneficial to delay OAS. For low-income seniors eligible for the Guaranteed Income Supplement (GIS), the breakeven age can be significantly higher, sometimes reaching 90 or even 100 years. In such cases, delaying OAS can result in a financial loss.
 
-The goal is to improve the uptake of OAS among seniors, particularly those in a low-income bracket who could also be eligible for GIS. This prototype aims to provide a clear and user-friendly interface that helps seniors understand the potential financial benefits and drawbacks of delaying their OAS payments, simplifying the decision-making process with clear visualizations and explanations.
+The goal is to improve the uptake of OAS among seniors, particularly those in a low-income bracket who could also be eligible for GIS. This prototype aims to provide a clear and user-friendly interface that helps seniors understand the financial impact of delaying their OAS start age, simplifying the decision-making process with clear visualizations and explanations.
 
 **Note:** This is a prototype and not a finalized product. It is intended to demonstrate the concept and provide initial functionality.
 
@@ -49,15 +51,25 @@ A visual tool is needed to illustrate these nuances effectively and help low-inc
 - Visualization of the impact on GIS.
 - Basic styling and structure for user interaction.
 
-## Screenshots
+Sure, here is the revised section with the requested changes:
 
-**Example 1: 40 years residency, delay to 70, income too high for GIS**
+## Hypothetical Case Studies
+
+### Example 1: Maria
+
+Maria has been living in Canada all her life. A trusted financial adviser told her she should hold off on applying for OAS until age 70 because she'll get "more". Her income is over $21,000, making her ineligible for GIS. Let's run the calculator for Maria:
 
 ![40 years no gis](doc-images/40-years-no-gis.png "40 years no gis")
 
-**Example 2: 37 years residency, delay to 68, some GIS eligibility**
+The results show that Maria would need to live to at least age 84 to break even. The average life expectancy in Canada for someone who has reached age 65 is approximately 85 years, as of 2022. By delaying OAS, Maria takes a risk of not living long enough to benefit from the increased payments. Additionally, she would miss out on the OAS income of over $42K during the first 5 years of her retirement when it could have been useful for travel and other activities typical of the early, more active retirement years.
+
+### Example 2: Priya
+
+Priya has 37 years of residency in Canada, having immigrated from India at age 28. She earns approximately $12,000 per year working part-time as a caregiver, making her eligible for GIS. Priya believes that delaying OAS for 3 years will both increase her residency to 40 years to receive the full pension amount and that it also increases the monthly payment by 0.6% for each month of delay. Let's see how Priya fares by delaying:
 
 ![38 years gis](doc-images/38-years-gis.png "38 years gis")
+
+The results show that Priya would need to live to at least age 90 to break even. Given that the average life expectancy, it is unlikely that Priya would benefit from delaying her OAS. Additionally, she would be sacrificing over $38,000 in OAS and GIS payments during the 3-year delay, which could be critical given her low income situation.
 
 ## Current Status
 
@@ -117,11 +129,11 @@ Ideally the government of Canada would provide a free CORS enabled API for appli
 Given that this project will incorporate a build system (see next section on Technical Enhancements), could use this npm package: https://github.com/danielabar/gis-lookup, but that requires manual maintenance, and is only for GIS, not OAS.
 
 Some references include:
-* https://www.canada.ca/en/services/benefits/publicpensions/cpp/old-age-security/benefit-amount.html
-* https://www150.statcan.gc.ca/n1/en/catalogue/84-537-X
-* https://www.canada.ca/en/services/benefits/publicpensions/cpp/old-age-security/guaranteed-income-supplement/eligibility.html
-* https://www.canada.ca/en/services/benefits/publicpensions/cpp/old-age-security/guaranteed-income-supplement/benefit-amount.html
-* https://open.canada.ca/data/en/dataset/dfa4daf1-669e-4514-82cd-982f27707ed0
+* [Old Age Security How much you could receive](https://www.canada.ca/en/services/benefits/publicpensions/cpp/old-age-security/benefit-amount.html)
+* [Statistics Canada Life Tables](https://www150.statcan.gc.ca/n1/en/catalogue/84-537-X)
+* [Guaranteed Income Supplement Do you qualify](https://www.canada.ca/en/services/benefits/publicpensions/cpp/old-age-security/guaranteed-income-supplement/eligibility.html)
+* [Guaranteed Income Supplement How much you could receive](https://www.canada.ca/en/services/benefits/publicpensions/cpp/old-age-security/guaranteed-income-supplement/benefit-amount.html)
+* [Old Age Security and GIS Table of Benefit Amounts by marital status and income level](https://open.canada.ca/data/en/dataset/dfa4daf1-669e-4514-82cd-982f27707ed0)
 
 ### Technical Enhancements
 
