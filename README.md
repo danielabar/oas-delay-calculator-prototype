@@ -69,7 +69,9 @@ Priya has 37 years of residency in Canada, having immigrated from India at age 2
 
 ![38 years gis](doc-images/38-years-gis.png "38 years gis")
 
-The results show that Priya would need to live to at least age 90 to break even. Given that the average life expectancy, it is unlikely that Priya would benefit from delaying her OAS. Additionally, she would be sacrificing over $38,000 in OAS and GIS payments during the 3-year delay, which could be critical given her low income situation.
+The results show that Priya would need to live to at least age 90 to break even. Given the average life expectancy, it is unlikely that Priya would benefit from delaying her OAS. Additionally, she would be sacrificing over $38K in OAS *and* GIS payments during the 3-year delay, which could be critical given her low income situation.
+
+You can also see that the two income streams (start at 65 vs start at 68) are much closer together compared to the previous case with no GIS, showing that the delayed start has negligible benefit even beyond age 90. This is due to GIS, which greatly increases the amount of income missed during the first 3 years, and is greater in magnitude than the percentage increase in monthly payments due to the delayed start. Specifically, delaying GIS from 65 to 68 increases the monthly payment by $142.52. But the GIS entitlement of $398.95 is much greater than this, which means it's going to take longer for the smaller monthly increase to make up for three years of missed regular OAS and the GIS combined.
 
 ## Current Status
 
