@@ -51,8 +51,6 @@ A visual tool is needed to illustrate these nuances effectively and help low-inc
 - Visualization of the impact on GIS.
 - Basic styling and structure for user interaction.
 
-Sure, here is the revised section with the requested changes:
-
 ## Hypothetical Case Studies
 
 ### Example 1: Maria
