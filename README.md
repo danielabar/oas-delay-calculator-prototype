@@ -79,6 +79,8 @@ The current version is a working prototype with the core functionality in place.
 
 ### Functional Improvements
 
+Lines should "bend" at age 75 reflecting the 10% increase in payments: https://www.canada.ca/en/services/benefits/publicpensions/cpp/old-age-security/benefit-amount.html
+
 In addition to the existing breakeven chart annotation, add an annotation for Statistics Canada life expectancy. Add a toggle so users can view the chart with or without this additional information. The easier way would be to use the Statistics Canada combined data for men and women. A little more work would be to also ask the user whether they are man/woman, and then show the relevant Statistics Canada life expectancy. If doing this, add explanation why we need to ask for this info.
 
 Update styles to emphasize importance of initial years of missed payments.
