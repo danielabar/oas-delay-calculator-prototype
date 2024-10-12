@@ -89,6 +89,13 @@ Update results panel to indicate how the initial years of missed payments was ca
 
 Update results panel to explain percentage increase: This is because each month of delay increases pension amt by 0.6%..
 
+Round all the numerical values to the nearest $50, $100 or $1,000 depending.. to convey a message that the results are approximations.
+
+**Include notes:**
+- Results assume that the income is "XXXXX", and approximate.
+- Break even calculation is based on cash flow only..  There is no assumption about investment of the proceeds or returns on those investments
+- Inflation not accounted for, all numbers in today's dollars
+
 Add disclaimer panel including:
 - This tool is only one piece of information of many moving parts in retirement and financial planning.
 - No one can predict their exact lifespan, which adds uncertainty.
