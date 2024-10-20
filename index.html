@@ -258,22 +258,25 @@
       return dataPoints;
     };
 
-    // Find the breakeven age (where the two lines intersect approximately)
-    function findBreakevenAge(dataDefault, dataDelayed, ageTakingOas) {
+    const findBreakevenAge = (dataDefault, dataDelayed, ageTakingOas) => {
+      let minDifference = Infinity;
       let breakevenAge = null;
 
-      for (let age = ageTakingOas; age <= finalAge; age++) {
-        const benefitAtDefaultAge = dataDefault.find(item => item.x === age)?.y || 0;
-        const benefitAtDelayedAge = dataDelayed.find(item => item.x === age)?.y || 0;
-
-        if (Math.abs(benefitAtDelayedAge - benefitAtDefaultAge) <= closeEnoughToBreakEven) {
+      // Start at ageTakingOas because the second dataset only starts there
+      for (let age = ageTakingOas; age <= (finalAge); age++) {
+        const benefitAtDefault = dataDefault.find(item => item.x === age)?.y || 0;
+        const benefitAtDelayed = dataDelayed.find(item => item.x === age)?.y || 0;
+        const difference = Math.abs(benefitAtDelayed - benefitAtDefault);
+        if (difference < minDifference) {
+          minDifference = difference;
           breakevenAge = age;
-          break;
         }
       }
-      if (breakevenAge === null) {
+      console.log({minDifference, breakevenAge})
+
+      if (breakevenAge === finalAge && minDifference > 1000) {
         console.error('Could not find breakeven age');
-        return "Beyond Human Lifetime"
+        return "Off the chart!"
       }
       return breakevenAge;
     };
